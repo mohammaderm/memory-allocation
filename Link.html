@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <h5 class="m-2">LinkList Memory Allocation</h5>
+           
+            <hr class="w-50">
+        </div>
+    </div>
+
+    <div id="memoryStatus" class="container">
+    
+    </div>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="d-grid gap-2 d-md-block m-2">
+                <button id="randomFileBtn" type="button" class="btn btn-sm btn-primary"> Crate Random File </button>
+                <div class="container">
+                    <div id="randomFileComponent" class="row">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="memoryBlock" class="row">
+            
+        </div>
+    </div>
+
+
+
+
+
+</body>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    memorySize = 500
+    var procesList = []
+
+    var colorList = ['#001a66', '#5e3000', '#5e0009', '#5e005d','#d21d0a','#0cafd0','#0ec62b', '#d63384']
+
+    class Process {
+        constructor(processSize, next = null) {
+            this.processSize = processSize,
+                this.next = next
+        }
+    }
+
+    function createRandomProcess(numberOfProcess) {
+        const processList = [];
+        let start = new Process(Math.floor(Math.random() * 13) + 2)
+        for (let index = 0; index < numberOfProcess; index++) {
+            let myProcess = new Process(Math.floor(Math.random() * 13) + 2)
+            start.next = myProcess
+            processList.push(start)
+            start = myProcess
+        }
+        return processList;
+    }
+
+
+    function fileSize(list) {
+        var filesize = 0
+        for (elm in list) {
+            filesize += list[elm].processSize
+        }
+        return filesize
+    }
+    
+    function memoryDisplay(List) {
+        $('#memoryBlock').html("")
+        for (elm in List) {
+            color = Math.floor(Math.random() * colorList.length)
+            for (key in List[elm]) {
+                memoryBlockComponent = `<div class="col-2">
+                <div class="shadow text-white rounded p-2 m-1 text-center" style="background-color:${colorList[color]};">${List[elm][key].processSize}KB</div>
+            </div>`
+            $('#memoryBlock').append(memoryBlockComponent)
+            }
+        }
+    }
+
+    function processDisplay(ProcessList) {
+        $('#randomFileComponent').html("")
+        var processId = 0
+        for (elm in ProcessList){
+            randomeFile = `<div class="col-2 border bg-white p-2 m-3 shadow rounded text-center fs-6"><i class="fa fa-file text-secondary"></i> FileSize ${fileSize(ProcessList[elm])}KB <i id="${processId}" class="remove fa fa-trash text-danger fs-5" aria-hidden="true" style="cursor: pointer;"></i></div>`
+            $('#randomFileComponent').append(randomeFile)
+            processId += 1
+        }      
+    }
+
+    function removeProcess(processId) {
+        procesList.splice(processId,1)
+    }
+
+    function memoryOccupied(ProcessList) {
+        $('#memoryStatus').html("")
+        var Occupied = 0
+        var freeSpace = 0
+        for (elm in ProcessList){
+            Occupied += fileSize(ProcessList[elm])
+        }
+        freeSpace = memorySize - Occupied
+        memoryStatusComponent = `<span class="shadow p-2 m-2 bg-body rounded text-center" style="font-size: 14px;">Memory Size ${freeSpace}Kb</span>
+        <span class="shadow p-2 m-2 bg-body rounded text-center" style="font-size: 14px;">Memory Occupied ${Occupied}Kb</span>`
+        $('#memoryStatus').append(memoryStatusComponent)
+    }
+
+    $('#randomFileBtn').on('click', function (event) {
+        listofProcess = createRandomProcess(4)
+        procesList.push(listofProcess)
+        processDisplay(procesList)
+        memoryDisplay(procesList)
+        memoryOccupied(procesList)
+    });
+
+    $(document).ready(function () {
+        $('body').on('click', '.remove', function () {
+            processid = $(this).attr('id')
+            removeProcess(processid)
+            processDisplay(procesList)
+            memoryDisplay(procesList)
+            memoryOccupied(procesList)
+        });
+    });
+    memoryOccupied(procesList)
+
+
+</script>
+
+</html>
+
+
