@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <h5 class="m-2">Index Memory Allocation</h5>
+           
+            <hr class="w-50">
+        </div>
+    </div>
+
+    <div id="memoryStatus" class="container">
+    
+    </div>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="d-grid gap-2 d-md-block m-2">
+                <button id="randomFileBtn" type="button" class="btn btn-sm btn-primary"> Crate Random File </button>
+                <div class="container">
+                    <div id="memoryBlocks" class="row">
+
+
+                    </div>
+                    <hr class="w-75">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="indexBlocks" class="row m-2">
+
+        </div>
+    </div>
+
+
+
+
+
+</body>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    var memorySize = 500
+    var memoryBlock = []
+    var memory = {}
+    var indexBlockList = []
+
+    class Process {
+        constructor(processSize, processAddress) {
+            this.processSize = processSize;
+            this.processAddress = processAddress;
+        }
+    }
+
+    function createProcess(numberOfProcess) {
+        indexBlock = []
+        const processList = [];
+        for (let index = 0; index < numberOfProcess; index++) {
+            randomAddress = Math.floor(Math.random() * 10000)
+            let myProcess = new Process(Math.floor(Math.random() * 20) + 1, randomAddress)
+            processList.push(myProcess)
+            indexBlock.push(randomAddress)
+            memoryBlock.push(randomAddress)
+            memory[randomAddress] = myProcess
+        }
+        return [indexBlock, processList]
+    }
+
+
+    function removeProcess(indexBlock) {
+        for (elm in indexBlock) {
+            delete memory[indexBlock[elm]]
+        }
+        for (elm in indexBlockList){
+            if (indexBlockList[elm][0] == indexBlock[0] && indexBlockList[elm][1] == indexBlock[1]){
+                indexBlockList.splice(elm,1)
+            }
+        }
+    }
+
+
+    function memoryDisplay() {
+        $('#memoryBlocks').html("")
+        for (let elm in memory) {
+            memoryComponent = `<div class="card shadow text-center col-2 m-2">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">pinter ${elm}</li>
+                                <li class="list-group-item">${memory[elm].processSize}KB</li>
+                            </ul>
+                        </div>`
+            $('#memoryBlocks').append(memoryComponent)
+        }
+    }
+
+    function indexBlockListDisplay(List) {
+        $('#indexBlocks').html("")
+        var id = 0
+        for (elm in List) {
+            indexBlocksComponent = `<div class="card shadow text-center col-2 m-2">
+                                            <ul id="blockindex${id}" class="list-group list-group-flush">
+                                                
+                                            </ul>
+                                            <button id="${id}" type="button" class="remove btn btn-danger btn-sm m-2">Remove File</button>
+                                        </div>`
+            $('#indexBlocks').append(indexBlocksComponent)
+            for (element in List[elm]) {
+                indexBlockComponent = `<li class="list-group-item">pinter ${List[elm][element]}</li>`
+                $('#blockindex'+id).append(indexBlockComponent)
+            }
+            id += 1
+        }
+
+    }
+
+    function memoryOccupied() {
+        $('#memoryStatus').html("")
+        var Occupied = 0
+        var freeSpace = 0
+        for (elm in memory){
+            Occupied += memory[elm].processSize
+        }
+        freeSpace = memorySize - Occupied
+        memoryStatusComponent = `<span class="shadow p-2 m-2 bg-body rounded text-center" style="font-size: 14px;">Memory Size ${freeSpace}Kb</span>
+        <span class="shadow p-2 m-2 bg-body rounded text-center" style="font-size: 14px;">Memory Occupied ${Occupied}Kb</span>`
+        $('#memoryStatus').append(memoryStatusComponent)
+    }
+
+
+
+    $('#randomFileBtn').on('click', function (event) {
+        processList = createProcess(3)
+        indexBlockList.push(processList[0])
+        memoryDisplay()
+        indexBlockListDisplay(indexBlockList)
+        memoryOccupied()
+    });
+
+    $(document).ready(function () {
+        $('body').on('click', '.remove', function () {
+            processid = $(this).attr('id')
+            indexBlocklist = indexBlockList[processid]
+            removeProcess(indexBlocklist)
+            memoryDisplay()
+            indexBlockListDisplay(indexBlockList)
+            memoryOccupied()
+        });
+    });
+    memoryOccupied()
+
+</script>
+
+</html>
