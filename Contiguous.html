@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contiguous</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <h5 class="m-2">Contiguous Memory Allocation</h5>
+            <hr class="w-50">
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div id="process"></div>
+        </div>
+    </div>
+
+    <div id="addall" class="container">
+        <div class="row">
+            <div class="d-grid gap-2 d-md-block m-2">
+                <button id="addtomemory" type="button" class="btn btn-sm btn-primary"> Add All Files </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="d-grid gap-2 d-md-block m-2">
+                <button id="addcustom" type="button" class="btn btn-sm btn-primary">Add Custom Files</button>
+                <div id="wasted"></div>
+                <input id="customprocess" class="form-control m-2 p-2 w-25" type="number"
+                    placeholder="size of you file range(2, 14)" aria-label="default input example">
+                <div class="container">
+                    <div class="row">
+                        <div id="allcustomprocess"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="block" class="row">
+
+        </div>
+    </div>
+
+
+</body>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+    crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+
+    const memory = [15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+
+    // -------------------
+    // ----- process class 
+    // -------------------
+    class Process {
+        constructor(processSize, processAddress) {
+            this.processSize = processSize;
+            this.processAddress = processAddress;
+        }
+    }
+
+    // ------------------------------------
+    // -----create process with random size
+    // ------------------------------------
+    function createProcess(numberofprocess) {
+        const processList = [];
+        for (let index = 0; index < numberofprocess; index++) {
+            let myProcess = new Process(Math.floor(Math.random() * 13) + 2, -1);
+            processList.push(myProcess)
+        }
+        return processList;
+    }
+
+    // -------------------------------
+    // -----add process to memory list
+    // ------------------------------- 
+    function addToMemory(process) {
+        for (let index = 0; index < memory.length; index++) {
+            if (process.processSize < memory[index] && memory[index] == 15) {
+                memory[index] = memory[index] - process.processSize
+                process.processAddress = index
+                break
+            }
+        }
+    }
+
+
+    // ----------------------------------------------
+    // -----remove process from memory and free space
+    // ----------------------------------------------
+    function removeFromMemory(Address) {
+        memory[Address] = 15
+    }
+
+
+    // ----------------------------------
+    // -----display all process in memory
+    // ----------------------------------
+    function memoryDisplay() {
+        $('#block').html("");
+        $('#wasted').html("");
+        for (elm in memory) {
+            if (memory[elm] == 15) {
+                process = `<span id="${elm}" class="col">
+                <div class="card text-center m-2" style="width: 4rem;height:15rem;">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" style="height: 5rem;">${memory[elm]} KB</li>
+                        <!-- <li class="list-group-item" style="height: 5rem;">A second item</li>
+                      <li class="list-group-item" style="height: 5rem;">A third item</li> -->
+                    </ul>
+                </div>
+            </span>`
+                $('#block').append(process);
+                continue
+            }
+            if (memory[elm] >= 12) {
+                process = `<span id="${elm}-" class="col">
+                        <div class="card text-center m-2" style="width: 4rem;height:15rem;">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" style="height: ${memory[elm]}rem;font-size:15px;border-bottom: none;">${memory[elm]} KB</li>
+                                <li class="list-group-item p-1 mt-3 bg-secondary text-white" style="height: ${15 - memory[elm]}rem; font-size:15px;">${15 - memory[elm]} KB</li>
+                            </ul>
+                            <button id="${elm}" type="button" class="remove btn btn-danger btn-sm mt-1">Delete</button>
+                        </div>
+                    </span>`
+                $('#block').append(process);
+                continue
+            }
+            else {
+                process = `<span id="${elm}-" class="col">
+                        <div class="card text-center m-2" style="width: 4rem;height:15rem;">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item mb-3 p-1" style="height: ${memory[elm]}rem;font-size:15px;border-bottom: none;">${memory[elm]} KB</li>
+                                <li class="list-group-item bg-secondary text-white" style="height: ${15 - memory[elm]}rem; font-size:15px;">${15 - memory[elm]} KB</li>
+                            </ul>
+                            <button id="${elm}" type="button" class="remove btn btn-danger btn-sm mt-1">Delete</button>
+                        </div>
+                    </span>`
+                $('#block').append(process);
+                continue
+            }
+        }
+        wastedspace = 0
+        for (elm in memory) {
+            if (memory[elm] != 15) {
+                wastedspace += memory[elm]
+            }
+        }
+        wastedspaceComponent = `<span class="shadow mb-5 bg-body rounded p-2 m-1" style="float: right;font-size:16px;">Wasted Memory: ${wastedspace} KB</span>`
+        $('#wasted').append(wastedspaceComponent);
+    }
+
+    // -------------------------------
+    // -----display all arival process
+    // -------------------------------
+    function processDisplay(List) {
+        for (elm in List) {
+            process = `<button type="button" class="btn btn-sm btn-success m-2" style="cursor: default;"><i class="fa fa-file"></i> file-number ${elm}  f-size ${List[elm].processSize}</button>`
+            $('#process').append(process)
+        }
+    }
+
+    processList = createProcess(6)
+    processDisplay(processList)
+    memoryDisplay()
+
+
+    function addCustomProcess(processsize) {
+        for (elm in memory) {
+            if (memory[elm] == 15) {
+                memory[elm] = 15 - processsize
+                break
+            }
+        }
+
+    }
+
+    $('#addtomemory').on('click', function (event) {
+        $('#block').html("")
+        $('#addall').remove()
+        for (elm in processList) {
+            addToMemory(processList[elm])
+        }
+        memoryDisplay()
+    });
+
+    $('#addcustom').on('click', function (event) {
+        if ($('#customprocess').val() != "" && $('#customprocess').val() >= 2 && $('#customprocess').val() <= 14) {
+            process = `<button type="button" class="btn btn-sm btn-warning m-2" style="cursor: default;"><i class="fa fa-file"></i> custom file f-size ${$('#customprocess').val()}</button>`
+            $('#allcustomprocess').append(process)
+            addCustomProcess($('#customprocess').val())
+            $('#customprocess').attr("placeholder", "size of you file range(2, 14)").val("");
+            memoryDisplay()
+        }
+        else {
+            alert('please insert a valid file size in range 2 to 14')
+        }
+    });
+
+
+    $(document).ready(function () {
+        $('body').on('click', '.remove', function () {
+            processid = $(this).attr('id')
+            removeFromMemory(processid)
+            $('#block').html("")
+            memoryDisplay()
+        });
+    });
+
+
+
+
+
+
+</script>
+
+</html>
