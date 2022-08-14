@@ -1,6 +1,6 @@
 # memory-allocation
 
-implemention memory allocation algoritms
+implemention memory allocation algoritms, written in js.
 
 >**Contiguous**
 
